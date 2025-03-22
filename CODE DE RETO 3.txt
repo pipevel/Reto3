@@ -1,0 +1,250 @@
+# FUNCIONES Evaluación del aprendizaje Y Interacción con el usuario
+
+def verificar_aprendizaje(respuestas, umbral_aprobacion=70):
+    """
+    Evalúa las respuestas de una prueba y determina si se aprueba o no.
+
+    Parámetros:
+    - respuestas (lista de bool): Lista de respuestas (True para correcto, False para incorrecto).
+    - umbral_aprobacion (int, opcional): Porcentaje mínimo para aprobar (70% por defecto).
+
+    Retorna:
+    - Un mensaje con los resultados.
+    """
+    if not respuestas:
+        return "⚠️ No hay respuestas para evaluar."
+
+    total_preguntas = len(respuestas)
+    respuestas_correctas = sum(respuestas)
+    respuestas_incorrectas = total_preguntas - respuestas_correctas
+    porcentaje = (respuestas_correctas / total_preguntas) * 100
+
+    resultado = "✅ Aprobado" if porcentaje >= umbral_aprobacion else "❌ No aprobado"
+
+    return (f"📊 **Resultados de la Evaluación:**\n"
+            f"- Preguntas totales: {total_preguntas}\n"
+            f"- Respuestas correctas: {respuestas_correctas}\n"
+            f"- Respuestas incorrectas: {respuestas_incorrectas}\n"
+            f"- Porcentaje de aciertos: {porcentaje:.2f}%\n"
+            f"- Resultado final: {resultado}")
+
+def obtener_respuestas_usuario():
+    """Solicita respuestas al usuario y las convierte a una lista de booleanos."""
+    while True:
+        try:
+            num_preguntas = int(input("📌 Ingrese el número de preguntas en la evaluación: "))
+            if num_preguntas <= 0:
+                print("⚠️ El número de preguntas debe ser mayor a 0.")
+                continue
+            break
+        except ValueError:
+            print("⚠️ Ingrese un número válido.")
+
+    respuestas = []
+    for i in range(num_preguntas):
+        while True:
+            respuesta = input(f"🔹 Pregunta {i+1}: ¿Es correcta? (V/F): ").strip().upper()
+            if respuesta in ["V", "F"]:
+                respuestas.append(respuesta == "V")  # Convierte "V" en True y "F" en False
+                break
+            else:
+                print("⚠️ Respuesta inválida. Escriba 'V' para Verdadero o 'F' para Falso.")
+
+    return respuestas
+
+# 🔹 Ejecución combinada
+if __name__ == "__main__":
+    print("⭐ Bienvenido al programa de evaluación de aprendizaje ⭐\n")
+    eleccion = input("¿Quieres ingresar respuestas manualmente (M) o usar una lista predefinida (P)? ").strip().upper()
+
+    if eleccion == "M":
+        respuestas_usuario = obtener_respuestas_usuario()
+    elif eleccion == "P":
+        # Lista predefinida para pruebas rápidas
+        respuestas_usuario = [True, False, True, True, False, True, True, True, True, False]
+        print("📌 Usando la lista de respuestas predefinidas.")
+    else:
+        print("⚠️ Opción inválida. Saliendo del programa...")
+        exit()
+
+    print("\n" + verificar_aprendizaje(respuestas_usuario))
+
+#FUNCION 
+# 🎯 Sistema de Fidelización de Empleados
+
+# Base de datos de empleados (simulada con un diccionario)
+puntos_fidelizacion = {}
+
+# 🎁 Tabla de recompensas (puede ampliarse)
+recompensas = {
+    100: "Kit básico de productos de limpieza",
+    200: "Kit avanzado de productos de limpieza",
+    500: "Kit premium con productos exclusivos",
+    1000: "Mega kit completo con toda la línea de productos"
+}
+
+def registrar_desempeno(empleado, tareas_realizadas, metodologia_correcta):
+    """Registra el desempeño de un empleado y asigna puntos según su trabajo."""
+    if metodologia_correcta:
+        puntos_ganados = tareas_realizadas * 10  # 10 puntos por cada tarea bien hecha
+    else:
+        puntos_ganados = tareas_realizadas * 5  # 5 puntos si no sigue la metodología al 100%
+    
+    if empleado in puntos_fidelizacion:
+        puntos_fidelizacion[empleado] += puntos_ganados
+    else:
+        puntos_fidelizacion[empleado] = puntos_ganados
+    
+    return f"💼 {empleado} ha ganado {puntos_ganados} puntos. Total acumulado: {puntos_fidelizacion[empleado]} puntos."
+
+def consultar_puntos(empleado):
+    """Muestra los puntos acumulados de un empleado."""
+    if empleado in puntos_fidelizacion:
+        return f"📊 {empleado} tiene {puntos_fidelizacion[empleado]} puntos acumulados."
+    return "⚠️ Empleado no registrado."
+
+def canjear_puntos(empleado):
+    """Permite a un empleado canjear sus puntos por recompensas."""
+    if empleado not in puntos_fidelizacion:
+        return "⚠️ Empleado no registrado."
+    
+    puntos_empleado = puntos_fidelizacion[empleado]
+    recompensas_disponibles = {p: r for p, r in recompensas.items() if p <= puntos_empleado}
+    
+    if not recompensas_disponibles:
+        return "❌ No tienes suficientes puntos para canjear recompensas. Sigue acumulando."
+    
+    print("🎁 Recompensas disponibles:")
+    for puntos, recompensa in sorted(recompensas_disponibles.items()):
+        print(f"🔹 {puntos} puntos: {recompensa}")
+    
+    while True:
+        try:
+            opcion = int(input("✍️ Ingrese la cantidad de puntos que desea canjear: "))
+            if opcion in recompensas_disponibles:
+                puntos_fidelizacion[empleado] -= opcion
+                return f"🎉 {empleado} ha canjeado {opcion} puntos por: {recompensas[opcion]}! Puntos restantes: {puntos_fidelizacion[empleado]}"
+            else:
+                print("⚠️ Opción inválida. Escoja una cantidad de puntos válida.")
+        except ValueError:
+            print("⚠️ Ingrese un número válido.")
+
+# 🔹 Ejecución del programa
+if __name__ == "__main__":
+    while True:
+        print("\n⭐ Bienvenido al Sistema de Fidelización de Empleados ⭐")
+        print("1️⃣ Registrar desempeño")
+        print("2️⃣ Consultar puntos")
+        print("3️⃣ Canjear puntos")
+        print("4️⃣ Salir")
+        
+        opcion = input("👉 Elija una opción: ")
+        
+        if opcion == "1":
+            nombre = input("Ingrese el nombre del empleado: ").strip()
+            try:
+                tareas = int(input("Ingrese la cantidad de tareas completadas: "))
+                metodologia = input("¿Se siguió la metodología correctamente? (S/N): ").strip().upper() == "S"
+                print(registrar_desempeno(nombre, tareas, metodologia))
+            except ValueError:
+                print("⚠️ Ingrese un número válido.")
+        
+        elif opcion == "2":
+            nombre = input("Ingrese el nombre del empleado: ").strip()
+            print(consultar_puntos(nombre))
+        
+        elif opcion == "3":
+            nombre = input("Ingrese el nombre del empleado: ").strip()
+            print(canjear_puntos(nombre))
+        
+        elif opcion == "4":
+            print("👋 Gracias por usar el sistema de fidelización. ¡Hasta pronto!")
+            break
+        
+        else:
+            print("⚠️ Opción no válida. Intente nuevamente.")
+
+
+
+# 📦 Gestión de Inventarios
+inventario = {
+    "Pastillas multiusos": 500,
+    "Pastillas desinfectantes": 300,
+    "Pastillas para vidrios": 200
+}
+
+# 📋 Registro de pedidos previos por cliente
+pedidos_cliente = {}
+
+def consultar_inventario():
+    """Muestra el stock actual del inventario."""
+    print("📦 Estado actual del inventario:")
+    for producto, cantidad in inventario.items():
+        print(f"🔹 {producto}: {cantidad} unidades")
+
+def actualizar_stock(producto, cantidad):
+    """Actualiza el stock de un producto en el inventario."""
+    if producto in inventario:
+        inventario[producto] += cantidad
+        return f"✅ Stock actualizado: {producto} ahora tiene {inventario[producto]} unidades."
+    return "⚠️ Producto no encontrado en el inventario."
+
+def registrar_pedido(cliente, producto, cantidad):
+    """Registra el historial de pedidos del cliente para controlar nuevas solicitudes."""
+    if cliente not in pedidos_cliente:
+        pedidos_cliente[cliente] = {}
+    
+    if producto in pedidos_cliente[cliente]:
+        pedidos_cliente[cliente][producto] += cantidad
+    else:
+        pedidos_cliente[cliente][producto] = cantidad
+
+def realizar_pedido(cliente, producto, cantidad):
+    """Registra la salida de productos por pedido, limitando según el historial del cliente."""
+    if producto not in inventario:
+        return "⚠️ Producto no encontrado en el inventario."
+    
+    if cliente not in pedidos_cliente or producto not in pedidos_cliente[cliente]:
+        return "⚠️ No hay registros de pedidos previos de este producto para este cliente."
+    
+    cantidad_maxima = pedidos_cliente[cliente][producto]
+    if cantidad > cantidad_maxima:
+        return f"⚠️ No puedes pedir más de lo previamente adquirido ({cantidad_maxima} unidades)."
+    
+    if inventario[producto] >= cantidad:
+        inventario[producto] -= cantidad
+        registrar_pedido(cliente, producto, cantidad)
+        return f"📦 Pedido realizado: {cantidad} unidades de {producto} despachadas a {cliente}."
+    return "⚠️ No hay suficiente stock disponible para este pedido."
+
+# 🔹 Ejecución del programa
+if __name__ == "__main__":
+    while True:
+        print("\n⭐ Bienvenido al Sistema de Gestión de la Empresa ⭐")
+        print("1️⃣ Registrar desempeño")
+        print("2️⃣ Consultar puntos")
+        print("3️⃣ Canjear puntos")
+        print("4️⃣ Consultar inventario")
+        print("5️⃣ Actualizar stock")
+        print("6️⃣ Realizar pedido")
+        print("7️⃣ Salir")
+        
+        opcion = input("👉 Elija una opción: ")
+        
+        if opcion == "6":
+            cliente = input("Ingrese el nombre del cliente: ").strip()
+            producto = input("Ingrese el nombre del producto: ").strip()
+            try:
+                cantidad = int(input("Ingrese la cantidad a pedir: "))
+                print(realizar_pedido(cliente, producto, cantidad))
+            except ValueError:
+                print("⚠️ Ingrese un número válido.")
+        
+        elif opcion == "7":
+            print("👋 Gracias por usar el sistema. ¡Hasta pronto!")
+            break
+        
+        else:
+            print("⚠️ Opción no válida. Intente nuevamente.")
+
+
